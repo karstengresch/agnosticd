@@ -1,0 +1,66 @@
+---
+- name: Deploy CCNR Lab
+  hosts: localhost
+  tasks:
+    - name: set become_override
+      set_fact:
+        become_override: no
+
+    - name: set ocp_username
+      set_fact:
+        ocp_username: kubeadmin
+
+    - name: set silent
+      set_fact:
+        silent: False
+
+    - name: num_users
+      set_fact:
+        num_users: 2
+
+    - name: set module_type
+      set_fact:
+        module_type: m1,m2,m3,m4
+
+    - name: set gogs_pwd 
+      set_fact:
+        gogs_pwd: 'r3dh4t1!'
+
+    - name: create usernames
+      set_fact:
+        users: "{{ users | default([]) + ['user'+item | string] }}"
+      loop: "{{ range(1,((num_users | int) + 1)) | list }}"
+    # Figure out paths
+
+    - name: extract api_url
+      shell: oc whoami --show-server
+      register: api_url_r
+
+    - name: set the master
+      set_fact:
+        master_url: "{{ api_url_r.stdout | trim }}"
+
+    - name: extract console_url
+      command: oc whoami --show-console
+      register: console_url_r
+
+    - name: set the console
+      set_fact:
+        console_url: "{{ console_url_r.stdout | trim }}"
+
+    - name: extract route_subdomain
+      k8s_facts:
+        kind: Ingress
+      register: route_subdomain_r
+
+    - name: set the route
+      set_fact:
+        route_subdomain: "{{ route_subdomain_r.resources[0].spec.domain | trim }}"
+
+    - include: ./tasks/workload.yml
+      vars:
+          workshop_openshift_user_name: userXX
+          workshop_openshift_user_password: 'r3dh4t1!'
+          workshop_che_user_name: userXX
+          workshop_che_user_password: 'r3dh4t1!'
+          workshop_rhamt_user_password: 'r3dh4t1!'
