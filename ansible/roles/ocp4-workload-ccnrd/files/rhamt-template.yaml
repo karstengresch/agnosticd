@@ -638,7 +638,7 @@ parameters:
   displayName: Docker Images Tag
   name: DOCKER_IMAGES_TAG
   required: true
-  value: 4.2.1.Final
+  value: 4.3.1.Final
 - description: The maximum value of the size the an HTTP post request
   displayName: Undertow max post size
   name: MAX_POST_SIZE
